@@ -37,7 +37,7 @@ def load(path: str) -> pd.DataFrame:
 
 
 def estimate_coef(x, y):
-    """ """
+    """Calculate the coefficients of the regression line y = a * x + b"""
     # Calculating Number of Observations
     n = np.size(x)
 
@@ -50,30 +50,36 @@ def estimate_coef(x, y):
     ss_xx = np.sum(x * x) - n * mean_x * mean_x
 
     # Calculating Regression Coefficients
-    b_1 = ss_xy / ss_xx             # y = b[1] * x + b[0]
-    b_0 = mean_y - b_1 * mean_x
+    w = ss_xy / ss_xx           # y = b[1] * x + b[0]
+    b = mean_y - w * mean_x     # y = w    * x + b
 
-    return (b_0, b_1)
+    print(f"y(x) = w * x + b → y(x) = {c_shape}{w:.5f}{c_reset} * x + {c_shape}{b:.0f}{c_reset}")
 
-
-def plot_regression_line(x, y, b):
-    """ """
-    y_pred = b[0] + b[1] * x
-
-    # plt.figure()
-    # plt.scatter(x, y)
-    # plt.plot(x, y_pred, color="red")
-    # plt.xlabel("km")
-    # x_ticks = [50000, 100000, 150000, 200000, 250000]
-    # x_ticks_label = ['50 k', '100 k', '150 k', '200 k', '250 k']
-    # plt.xticks(ticks=x_ticks, labels=x_ticks_label)
-    # plt.ylabel("price")
-    # plt.show()
+    return w, b
 
 
-def ask_input(b):
+def model_pred(x, w, b):
+    """Make predictions based on the regression line """
+    y_pred = w * x + b
+    return y_pred
+
+
+def plot_regression_line(x, y, y_pred):
+    """Plot the regression line """
+    plt.figure()
+    plt.scatter(x, y)
+    plt.plot(x, y_pred, color="red")
+    plt.xlabel("km")
+    x_ticks = [50000, 100000, 150000, 200000, 250000]
+    x_ticks_label = ['50 k', '100 k', '150 k', '200 k', '250 k']
+    plt.xticks(ticks=x_ticks, labels=x_ticks_label)
+    plt.ylabel("price")
+    plt.show()
+
+
+def ask_input(w, b):
     """Ask for mileage input and calculate price based on a formula """
-    max_km = -b[0] / b[1]
+    max_km = -b / w
 
     while True:
         try:
@@ -87,7 +93,7 @@ def ask_input(b):
         except ValueError:
             print("Invalid input. Please enter a number.")
 
-    new_price = (b[0] + b[1] * mileage)
+    new_price = w * mileage + b
 
     print(f"For a car with {c_shape}{mileage:.0f}{c_reset} km, price will be {c_shape}{new_price:.0f}{c_reset}$")
 
@@ -95,18 +101,18 @@ def ask_input(b):
 
 
 def main():
+    """Main function to run the program """
     data = load("./data/data.csv")
 
     x = data['km']
     y = data['price']
 
-    b = [0, 0]
-    b = estimate_coef(x, y)
-    print("y(x) = a * x + b")
-    print("y(x) = {:.5f}".format(b[1]), "* x + {:.0f}".format(b[0]))
-    plot_regression_line(x, y, b)
+    w, b = 0, 0
+    w, b = estimate_coef(x, y)
+    y_pred = model_pred(x, w, b)
+    plot_regression_line(x, y, y_pred)
 
-    ask_input(b)
+    ask_input(w, b)
 
 
 if __name__ == "__main__":
