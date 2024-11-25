@@ -1,6 +1,8 @@
 # Environments
 .env
 
+*.pyc
+
 # csv files
 # data/*.csv
 
